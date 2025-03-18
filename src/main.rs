@@ -1,7 +1,5 @@
 use blake3::Hasher;
-use std::error::Error;
-use std::fs::File;
-use std::io::{self, BufRead, Read};
+use std::io::{self, BufRead};
 use std::path::Path;
 
 fn main() {
