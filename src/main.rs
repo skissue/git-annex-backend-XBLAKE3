@@ -59,8 +59,19 @@ fn handle_message<'a>(mut parts: impl Iterator<Item = &'a str>) -> Result<(), &'
     Ok(())
 }
 
+fn generate_hash(filepath: &str) -> io::Result<blake3::Hash> {
+    let path = Path::new(filepath);
+    let mut hasher = Hasher::new();
+
+    hasher.update_mmap(path)?;
+
+    Ok(hasher.finalize())
+}
+
 fn generate_key(filepath: &str) -> io::Result<String> {
-    todo!()
+    let hash = generate_hash(filepath)?;
+
+    Ok(hash.to_string())
 }
 
 fn verify_key_content(key: &str, filepath: &str) -> io::Result<()> {
