@@ -48,9 +48,10 @@ fn handle_message<'a>(mut parts: impl Iterator<Item = &'a str>) -> Result<(), &'
             let key = parts.next().ok_or("Invalid message".into())?;
             let filepath = parts.next().ok_or("Invalid message".into())?;
 
-            match verify_key_content(key, filepath) {
-                Ok(_) => println!("VERIFYKEYCONTENT-SUCCESS"),
-                Err(err) => println!("VERIFYKEYCONTENT-FAILURE"),
+            if verify_key_content(key, filepath) {
+                println!("VERIFYKEYCONTENT-SUCCESS")
+            } else {
+                println!("VERIFYKEYCONTENT-FAILURE")
             }
         }
         _ => return Err("Invalid message"),
@@ -74,6 +75,12 @@ fn generate_key(filepath: &str) -> io::Result<String> {
     Ok(hash.to_string())
 }
 
-fn verify_key_content(key: &str, filepath: &str) -> io::Result<()> {
-    todo!()
+fn verify_key_content(key: &str, filepath: &str) -> bool {
+    let Ok(hash) = generate_hash(filepath) else {
+        return false;
+    };
+
+    blake3::Hash::from_hex(key)
+        .map(|k| k == hash)
+        .unwrap_or(false)
 }
