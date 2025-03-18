@@ -11,17 +11,17 @@ fn main() {
             break;
         };
 
-        let parts = line.splitn(2, ' ');
+        let (message, arguments) = line.split_once(' ').unwrap_or((&line, ""));
 
-        if let Err(err) = handle_message(parts) {
+        if let Err(err) = handle_message(message, arguments) {
             println!("ERROR {}", err);
             break;
         }
     }
 }
 
-fn handle_message<'a>(mut parts: impl Iterator<Item = &'a str>) -> Result<(), &'static str> {
-    match parts.next().ok_or("Invalid message")? {
+fn handle_message<'a>(message: &str, arguments: &str) -> Result<(), &'static str> {
+    match message {
         "GETVERSION" => {
             println!("VERSION 1");
         }
@@ -35,7 +35,7 @@ fn handle_message<'a>(mut parts: impl Iterator<Item = &'a str>) -> Result<(), &'
             println!("ISCRYPTOGRAPHICALLYSECURE-YES");
         }
         "GENKEY" => {
-            let filepath = parts.next().ok_or("Invalid message")?;
+            let filepath = arguments;
 
             let file_size = match file_size(filepath) {
                 Ok(size) => size,
@@ -51,8 +51,7 @@ fn handle_message<'a>(mut parts: impl Iterator<Item = &'a str>) -> Result<(), &'
             }
         }
         "VERIFYKEYCONTENT" => {
-            let key = parts.next().ok_or("Invalid message".into())?;
-            let filepath = parts.next().ok_or("Invalid message".into())?;
+            let (key, filepath) = arguments.split_once(" ").ok_or("Invalid message")?;
 
             if verify_key_content(key, filepath) {
                 println!("VERIFYKEYCONTENT-SUCCESS")
