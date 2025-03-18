@@ -75,7 +75,7 @@ fn generate_hash(filepath: &str) -> io::Result<blake3::Hash> {
     let path = Path::new(filepath);
     let mut hasher = Hasher::new();
 
-    hasher.update_mmap(path)?;
+    hasher.update_mmap_rayon(path)?;
 
     Ok(hasher.finalize())
 }
