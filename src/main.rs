@@ -37,8 +37,16 @@ fn handle_message<'a>(mut parts: impl Iterator<Item = &'a str>) -> Result<(), &'
         "GENKEY" => {
             let filepath = parts.next().ok_or("Invalid message")?;
 
+            let file_size = match file_size(filepath) {
+                Ok(size) => size,
+                Err(err) => {
+                    println!("GENKEY-FAILURE {}", err);
+                    return Ok(());
+                }
+            };
+
             match generate_key(filepath) {
-                Ok(key) => println!("GENKEY-SUCCESS XBLAKE3-{}", key),
+                Ok(key) => println!("GENKEY-SUCCESS XBLAKE3-s{}-{}", file_size, key),
                 Err(err) => println!("GENKEY-FAILURE {}", err),
             }
         }
@@ -56,6 +64,12 @@ fn handle_message<'a>(mut parts: impl Iterator<Item = &'a str>) -> Result<(), &'
     }
 
     Ok(())
+}
+
+fn file_size(filepath: &str) -> io::Result<u64> {
+    let metadata = std::fs::metadata(filepath)?;
+
+    Ok(metadata.len())
 }
 
 fn generate_hash(filepath: &str) -> io::Result<blake3::Hash> {
