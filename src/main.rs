@@ -87,6 +87,10 @@ fn generate_key(filepath: &str) -> io::Result<String> {
 }
 
 fn verify_key_content(key: &str, filepath: &str) -> bool {
+    let Some((_, key)) = key.split_once("--") else {
+        return false;
+    };
+
     let Ok(hash) = generate_hash(filepath) else {
         return false;
     };
