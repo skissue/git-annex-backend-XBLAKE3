@@ -46,7 +46,7 @@ fn handle_message<'a>(mut parts: impl Iterator<Item = &'a str>) -> Result<(), &'
             };
 
             match generate_key(filepath) {
-                Ok(key) => println!("GENKEY-SUCCESS XBLAKE3-s{}-{}", file_size, key),
+                Ok(key) => println!("GENKEY-SUCCESS XBLAKE3-s{}--{}", file_size, key),
                 Err(err) => println!("GENKEY-FAILURE {}", err),
             }
         }
