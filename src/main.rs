@@ -38,7 +38,7 @@ fn handle_message<'a>(mut parts: impl Iterator<Item = &'a str>) -> Result<(), &'
             let filepath = parts.next().ok_or("Invalid message")?;
 
             match generate_key(filepath) {
-                Ok(key) => println!("GENKEY-SUCCESS {}", key),
+                Ok(key) => println!("GENKEY-SUCCESS XBLAKE3-{}", key),
                 Err(err) => println!("GENKEY-FAILURE {}", err),
             }
         }
