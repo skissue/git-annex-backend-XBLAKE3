@@ -13,56 +13,46 @@ fn main() {
 
         let (message, arguments) = line.split_once(' ').unwrap_or((&line, ""));
 
-        if let Err(err) = handle_message(message, arguments) {
-            println!("ERROR {}", err);
-            break;
+        match handle_message(message, arguments) {
+            Ok(response) => println!("{}", response),
+            Err(err) => {
+                println!("ERROR {}", err);
+                break;
+            }
         }
     }
 }
 
-fn handle_message<'a>(message: &str, arguments: &str) -> Result<(), &'static str> {
+fn handle_message<'a>(message: &str, arguments: &str) -> Result<String, &'static str> {
     match message {
-        "GETVERSION" => {
-            println!("VERSION 1");
-        }
-        "CANVERIFY" => {
-            println!("CANVERIFY-YES");
-        }
-        "ISSTABLE" => {
-            println!("ISSTABLE-YES");
-        }
-        "ISCRYPTOGRAPHICALLYSECURE" => {
-            println!("ISCRYPTOGRAPHICALLYSECURE-YES");
-        }
+        "GETVERSION" => Ok("VERSION 1".to_string()),
+        "CANVERIFY" => Ok("CANVERIFY-YES".to_string()),
+        "ISSTABLE" => Ok("ISSTABLE-YES".to_string()),
+        "ISCRYPTOGRAPHICALLYSECURE" => Ok("ISCRYPTOGRAPHICALLYSECURE-YES".to_string()),
         "GENKEY" => {
             let filepath = arguments;
 
             let file_size = match file_size(filepath) {
                 Ok(size) => size,
-                Err(err) => {
-                    println!("GENKEY-FAILURE {}", err);
-                    return Ok(());
-                }
+                Err(err) => return Ok(format!("GENKEY-FAILURE {}", err)),
             };
 
             match generate_key(filepath) {
-                Ok(key) => println!("GENKEY-SUCCESS XBLAKE3-s{}--{}", file_size, key),
-                Err(err) => println!("GENKEY-FAILURE {}", err),
+                Ok(key) => Ok(format!("GENKEY-SUCCESS XBLAKE3-s{}--{}", file_size, key)),
+                Err(err) => Ok(format!("GENKEY-FAILURE {}", err)),
             }
         }
         "VERIFYKEYCONTENT" => {
             let (key, filepath) = arguments.split_once(" ").ok_or("Invalid message")?;
 
             if verify_key_content(key, filepath) {
-                println!("VERIFYKEYCONTENT-SUCCESS")
+                Ok("VERIFYKEYCONTENT-SUCCESS".to_string())
             } else {
-                println!("VERIFYKEYCONTENT-FAILURE")
+                Ok("VERIFYKEYCONTENT-FAILURE".to_string())
             }
         }
-        _ => return Err("Invalid message"),
+        _ => Err("Invalid message"),
     }
-
-    Ok(())
 }
 
 fn file_size(filepath: &str) -> io::Result<u64> {
