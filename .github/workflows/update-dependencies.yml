@@ -37,5 +37,5 @@ jobs:
       - name: Commit cargo changes
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
-          commit_message: 'bump(cargo): update dependencies'
+          commit_message: 'bump: update Cargo.lock'
           file_pattern: Cargo.lock
