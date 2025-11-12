@@ -1,0 +1,41 @@
+name: Update Dependencies
+
+on:
+  schedule:
+    # Weekly on Sundays at midnight UTC
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install Nix
+        uses: DeterminateSystems/determinate-nix-action@v3
+
+      - name: Update flake
+        run: nix flake update
+
+      - name: Update cargo
+        run: nix develop --command cargo update
+
+      - name: Build project
+        run: nix build
+
+      - name: Commit flake changes
+        uses: stefanzweifel/git-auto-commit-action@v7
+        with:
+          commit_message: 'bump(nix): update flake'
+          file_pattern: flake.lock
+
+      - name: Commit cargo changes
+        uses: stefanzweifel/git-auto-commit-action@v7
+        with:
+          commit_message: 'bump(cargo): update dependencies'
+          file_pattern: Cargo.lock
